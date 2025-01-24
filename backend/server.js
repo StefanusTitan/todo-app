@@ -135,7 +135,7 @@ app.post('/users', async (req, res) => {
     }
 });
 
-app.get('/users', async (req, res) => {
+app.get('/users', authenticateToken, async (req, res) => {
     try {
         const users = await getUsers();
         res.status(200).json(users);
@@ -144,7 +144,7 @@ app.get('/users', async (req, res) => {
     }
 });
 
-app.put('/users/:id', async (req, res) => {
+app.put('/users/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { username, email, password, profile_picture_path } = req.body;
 
@@ -159,7 +159,7 @@ app.put('/users/:id', async (req, res) => {
   }
 });
 
-app.delete('/users/:id', async (req, res) => {
+app.delete('/users/:id', authenticateToken, async (req, res) => {
     try {
         const deleted = await deleteUser(req.params.id);
         if (!deleted) {
@@ -189,7 +189,7 @@ app.post('/todos', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/todos', async (req, res) => {
+app.get('/todos', authenticateToken, async (req, res) => {
     try {
         const todos = await getTodos();
         res.status(200).json(todos);
@@ -210,7 +210,7 @@ app.get('/userTodo', authenticateToken, async (req, res) => {
     }
 });
 
-app.put('/todos/:id', async (req, res) => {
+app.put('/todos/:id', authenticateToken, async (req, res) => {
     try {
         const updatedTodo = await updateTodo(req.params.id, req.body);
         if (!updatedTodo) {
@@ -222,7 +222,7 @@ app.put('/todos/:id', async (req, res) => {
     }
 });
 
-app.delete('/todos/:id', async (req, res) => {
+app.delete('/todos/:id', authenticateToken, async (req, res) => {
     try {
         const deleted = await deleteTodo(req.params.id);
         if (!deleted) {

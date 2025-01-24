@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 require('dotenv').config();
 
 interface Todo {
-  id: number;
+  item_id: number;
   title: string;
   description: string;
   status: string;
   priority: string;
   due_date: string;
+  completed_at?: string;
 }
 
 export default function Home() {
@@ -22,7 +23,7 @@ export default function Home() {
     priority: 'low',
     due_date: '',
   });
-
+  const [editingTodoId, setEditingTodoId] = useState<number | null>(null); // Track which to-do is being edited
   const router = useRouter(); // Initialize the router for navigation
 
   useEffect(() => {
@@ -32,33 +33,47 @@ export default function Home() {
           method: "GET",
           credentials: "include", // Include cookies for authentication
         });
-  
-        if (response.status === 401) {
+
+        if (response.status === 401 || response.status === 403) {
           // Redirect to the login page if unauthorized
           router.push("/login");
           return; // Stop further execution
         }
-  
+
         if (!response.ok) {
           throw new Error("Failed to fetch to-dos");
         }
-  
+
         const data: Todo[] = await response.json();
         setTodos(data);
       } catch (error) {
         console.error("Error fetching to-dos:", error);
       }
     };
-  
-    fetchUserTodos();
-  }, [router]);  
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    fetchUserTodos();
+  }, [router]);
+
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    id?: number
+  ) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+
+    if (editingTodoId !== null && id === editingTodoId) {
+      // Update the specific to-do being edited
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) =>
+          todo.item_id === id ? { ...todo, [name]: value } : todo
+        )
+      );
+    } else {
+      // This is for form input handling (title, description, etc.)
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -88,6 +103,68 @@ export default function Home() {
       });
     } catch (error) {
       console.error('Error adding to-do:', error);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/todos/${id}`, {
+        method: 'DELETE',
+        credentials: 'include', // Include cookies for authentication
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete to-do');
+      }
+
+      // Remove the deleted to-do from the list
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.item_id !== id));
+    } catch (error) {
+      console.error('Error deleting to-do:', error);
+    }
+  };
+
+  const handleEdit = (id: number) => {
+    if (editingTodoId === id) {
+      setEditingTodoId(null); // Close the editing mode if clicking the same to-do again
+    } else {
+      setEditingTodoId(id); // Set to the ID of the to-do you want to edit
+    }
+  };
+
+  const handleSave = async (id: number) => {
+    try {
+      const todoToUpdate = todos.find((todo) => todo.item_id === id);
+      if (!todoToUpdate) return;
+
+      // Update completed_at if status is 'completed'
+      if (todoToUpdate.status === 'completed') {
+        todoToUpdate.completed_at = new Date().toISOString();
+      } else {
+        todoToUpdate.completed_at = undefined;
+      }
+      
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for authentication
+        body: JSON.stringify(todoToUpdate),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update to-do');
+      }
+
+      // Update the local state with the edited to-do
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) => (todo.item_id === id ? { ...todoToUpdate } : todo))
+      );
+
+      setEditingTodoId(null); // Exit editing mode
+    } catch (error) {
+      console.error('Error saving to-do:', error);
     }
   };
 
@@ -130,7 +207,7 @@ export default function Home() {
             aria-label="Status"
           >
             <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
+            <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
         </div>
@@ -172,25 +249,98 @@ export default function Home() {
               <th>Status</th>
               <th>Priority</th>
               <th>Due Date</th>
+              <th>Completed At</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-          {todos.map((todo) => (
-            <tr key={`${todo.id}-${todo.title}`}>
-              <td>{todo.title}</td>
-              <td>{todo.description}</td>
-              <td>{todo.status}</td>
-              <td>{todo.priority}</td>
-              <td>{todo.due_date}</td>
-            </tr>
-          ))}
+            {todos.map((todo) => (
+              <tr key={`${todo.item_id}-${todo.title}`}>
+                <td>
+                  {editingTodoId === todo.item_id ? (
+                    <input
+                      type="text"
+                      name="title"
+                      value={todo.title}
+                      onChange={(e) => handleChange(e, todo.item_id)}
+                    />
+                  ) : (
+                    todo.title
+                  )}
+                </td>
+                <td>
+                  {editingTodoId === todo.item_id ? (
+                    <textarea
+                      name="description"
+                      value={todo.description}
+                      onChange={(e) => handleChange(e, todo.item_id)}
+                    />
+                  ) : (
+                    todo.description
+                  )}
+                </td>
+                <td>
+                  {editingTodoId === todo.item_id ? (
+                    <select
+                      name="status"
+                      value={todo.status}
+                      onChange={(e) => handleChange(e, todo.item_id)}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  ) : (
+                    todo.status
+                  )}
+                </td>
+                <td>
+                  {editingTodoId === todo.item_id ? (
+                    <select
+                      name="priority"
+                      value={todo.priority}
+                      onChange={(e) => handleChange(e, todo.item_id)}
+                    >
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  ) : (
+                    todo.priority
+                  )}
+                </td>
+                <td>
+                  {editingTodoId === todo.item_id ? (
+                    <input
+                      type="date"
+                      name="due_date"
+                      value={todo.due_date}
+                      onChange={(e) => handleChange(e, todo.item_id)}
+                    />
+                  ) : (
+                    todo.due_date
+                  )}
+                </td>
+                <td>
+                  {todo.completed_at}
+                </td>
+                <td className='buttons'>
+                  {editingTodoId === todo.item_id ? (
+                    <button onClick={() => handleSave(todo.item_id)}>Save</button>
+                  ) : (
+                    <button onClick={() => handleEdit(todo.item_id)}>Edit</button>
+                  )}
+                  <button onClick={() => handleDelete(todo.item_id)}>Delete</button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
       <style jsx>{`
         #container {
-          max-width: 600px;
+          max-width: 800px;
           margin: auto;
           padding: 20px;
           border: 1px solid #ccc;
@@ -211,6 +361,22 @@ export default function Home() {
         }
         th {
           background-color: #f4f4f4;
+          text-align: center;
+        }
+        button {
+          background-color: #ff4d4d;
+          color: white;
+          border: none;
+          padding: 5px 10px;
+          cursor: pointer;
+        }
+        button:hover {
+          background-color: #ff1a1a;
+        }
+        .buttons {
+          display: flex;
+          flex-direction:column;
+          gap: 5px;
         }
       `}</style>
     </div>
