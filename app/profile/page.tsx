@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
+require('dotenv').config();
 
 export default function Profile() {
     const [formData, setFormData] = useState({
@@ -56,7 +59,7 @@ export default function Profile() {
     useEffect(() => {
         async function fetchUserData() {
             try {
-                const response = await fetch('/users/1'); // Replace `1` with dynamic user ID if necessary
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/1`); // Replace `1` with dynamic user ID if necessary
                 if (!response.ok) {
                     throw new Error('Failed to fetch user data');
                 }
@@ -86,7 +89,7 @@ export default function Profile() {
         e.preventDefault();
 
         try {
-            const response = await fetch(`/users/1`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/1`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

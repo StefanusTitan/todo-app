@@ -1,4 +1,8 @@
+"use client";
+
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { useRouter } from "next/navigation";
+require('dotenv').config();
 
 interface Todo {
   id: number;
@@ -19,26 +23,35 @@ export default function Home() {
     due_date: '',
   });
 
-  // Fetch user's to-do items when the component mounts
+  const router = useRouter(); // Initialize the router for navigation
+
   useEffect(() => {
     const fetchUserTodos = async () => {
       try {
-        const response = await fetch('/userTodo', {
-          method: 'GET',
-          credentials: 'include', // Include cookies for authentication
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/userTodo`, {
+          method: "GET",
+          credentials: "include", // Include cookies for authentication
         });
-        if (!response.ok) {
-          throw new Error('Failed to fetch to-dos');
+  
+        if (response.status === 401) {
+          // Redirect to the login page if unauthorized
+          router.push("/login");
+          return; // Stop further execution
         }
+  
+        if (!response.ok) {
+          throw new Error("Failed to fetch to-dos");
+        }
+  
         const data: Todo[] = await response.json();
-        setTodos(data); // Set the fetched to-dos in state
+        setTodos(data);
       } catch (error) {
-        console.error('Error fetching to-dos:', error);
+        console.error("Error fetching to-dos:", error);
       }
     };
-
+  
     fetchUserTodos();
-  }, []);
+  }, [router]);  
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -51,7 +64,7 @@ export default function Home() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch('/todos', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/todos`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -162,15 +175,15 @@ export default function Home() {
             </tr>
           </thead>
           <tbody>
-            {todos.map((todo) => (
-              <tr key={todo.id}>
-                <td>{todo.title}</td>
-                <td>{todo.description}</td>
-                <td>{todo.status}</td>
-                <td>{todo.priority}</td>
-                <td>{todo.due_date}</td>
-              </tr>
-            ))}
+          {todos.map((todo) => (
+            <tr key={`${todo.id}-${todo.title}`}>
+              <td>{todo.title}</td>
+              <td>{todo.description}</td>
+              <td>{todo.status}</td>
+              <td>{todo.priority}</td>
+              <td>{todo.due_date}</td>
+            </tr>
+          ))}
           </tbody>
         </table>
       </div>

@@ -7,13 +7,9 @@ export default function LoginLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <div style={styles.container}>
-          <div style={styles.formContainer}>{children}</div>
-        </div>
-      </body>
-    </html>
+    <div style={styles.container}>
+      <div style={styles.formContainer}>{children}</div>
+    </div>
   );
 }
 
@@ -22,7 +18,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100vh",
+    height: "75vh",
     backgroundColor: "#f5f5f5",
   },
   formContainer: {

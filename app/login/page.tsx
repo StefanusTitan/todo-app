@@ -2,19 +2,33 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+require('dotenv').config();
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
+  const router = useRouter(); // Initialize the router
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(""); // Reset error message
+    setLoading(true); // Set loading to true
+
+    // Basic email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      setError("Please enter a valid email address.");
+      setLoading(false); // Reset loading state
+      return;
+    }
 
     try {
-      const response = await fetch("/login", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, { // Change to your actual API endpoint
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
@@ -22,13 +36,15 @@ export default function LoginPage() {
       if (!response.ok) {
         const errorData = await response.json();
         setError(errorData.error || "Login failed.");
+        setLoading(false); // Reset loading state
         return;
       }
 
       // Redirect or handle success
-      window.location.href = "/";
+      router.push("/"); // Use Next.js router for navigation
     } catch (err) {
       setError("Something went wrong. Please try again.");
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -61,8 +77,8 @@ export default function LoginPage() {
             required
           />
         </div>
-        <button type="submit" style={styles.button}>
-          Login
+        <button type="submit" style={styles.button} disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>

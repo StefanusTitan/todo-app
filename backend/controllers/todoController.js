@@ -75,4 +75,4 @@ async function deleteTodo(item_id) {
     }
 }
 
-module.exports = { createTodo, getTodos, getTodoByUserId, updateTodo, deleteTodo };
+module.exports = { createTodo, getTodos, getTodosByUserId, updateTodo, deleteTodo };

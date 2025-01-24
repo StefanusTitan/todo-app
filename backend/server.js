@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('./models/Users.js');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { 
     createUser, 
@@ -13,19 +14,23 @@ const {
 const { 
     createTodo, 
     getTodos, 
-    getTodoByUserId, 
+    getTodosByUserId, 
     updateTodo, 
     deleteTodo 
 } = require('./controllers/todoController');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3002;
 
 const jwt = require('jsonwebtoken');
 
 // Middleware to parse JSON request bodies
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true, // Allow cookies and other credentials
+}));
 
 // Middleware for token authentication
 const authenticateToken = (req, res, next) => {
@@ -193,9 +198,9 @@ app.get('/todos', async (req, res) => {
     }
 });
 
-app.get('/userTodo', async (req, res) => {
+app.get('/userTodo', authenticateToken, async (req, res) => {
     try {
-        const todo = await getTodoByUserId(req.user.id);
+        const todo = await getTodosByUserId(req.user.id);
         if (!todo) {
             return res.status(404).json({ error: 'To-do not found' });
         }

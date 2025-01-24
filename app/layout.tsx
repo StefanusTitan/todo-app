@@ -1,7 +1,9 @@
+// File: app/layout.tsx (or your RootLayout component)
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Image from "next/image"; 
+import Profile from "./profile"; // Importing the client-side component for the profile
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,27 +27,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <header>
           <nav>
             <ul>
               <li><a href="/">Home</a></li>
               <li><a href="/about">About</a></li>
               <li className="profile-item">
-              <a href="/profile">
-                <div className="circular-image">
-                  <Image // Use the next/image component for optimization
-                    src="/images/user-profile.jpg" // Path from the public directory
-                    alt="Profile Picture"
-                    width={64} // Explicitly set width and height
-                    height={64}
-                    className="profile-pic"
-                  />
-                </div>
-              </a>
-            </li>
+                <Profile /> {/* Client-side component that handles profile logic */}
+              </li>
             </ul>
           </nav>
         </header>
