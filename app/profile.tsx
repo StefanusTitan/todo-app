@@ -1,51 +1,75 @@
-// File: app/Profile.tsx (or your Profile component)
+"use client";
 
-"use client"; // Marks this as a client component
-
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
+import { useAuth } from "./context/AuthContext";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [profilePicturePath, setProfilePicturePath] = useState<string | null>(null);
+  const { isLoggedIn, profilePicturePath, login, logout } = useAuth();
+  const router = useRouter();
 
-  // Fetch user data to check login status
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`, { method: "GET", credentials: "include" });
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/profile`, {
+          method: "GET",
+          credentials: "include",
+        });
         if (response.ok) {
           const userData = await response.json();
-          setIsLoggedIn(true);
-          setProfilePicturePath(userData.profile_picture_path); // Assuming the path is in the response
-        } else {
-          setIsLoggedIn(false);
+          login(userData.profile_picture_path); // Update the global state
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
-        setIsLoggedIn(false);
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [login]);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (response.ok) {
+        logout(); // Update the global state
+        router.push("/login"); // Redirect to login page after logout
+      } else {
+        console.error("Failed to log out");
+        alert("Logout failed");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      alert("An error occurred while logging out");
+    }
+  };
 
   return (
-    <a href={isLoggedIn ? "/profile" : "/login"}>
-      {isLoggedIn ? (
-        <div className="circular-image">
-          <Image
-            src={profilePicturePath || "/images/default-profile.jpg"} // Default fallback image
-            alt="Profile Picture"
-            width={64}
-            height={64}
-            className="profile-pic"
-          />
-        </div>
-      ) : (
-        <span>Login</span> // Display text if not logged in
+    <div className="profile-container">
+      <a href={isLoggedIn ? "/profile" : "/login"}>
+        {isLoggedIn ? (
+          <div className="circular-image">
+            <Image
+              src={profilePicturePath || "/images/default-profile.jpg"}
+              alt="Profile Picture"
+              width={64}
+              height={64}
+              className="profile-pic"
+            />
+          </div>
+        ) : (
+          <span>Login</span>
+        )}
+      </a>
+      {isLoggedIn && (
+        <button onClick={handleLogout} className="logout-button">
+          Logout
+        </button>
       )}
-    </a>
+    </div>
   );
 };
 

@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const upload = require('./controllers/multer.js');
 const { 
     createUser, 
     getUsers, 
@@ -144,19 +145,8 @@ app.get('/users', authenticateToken, async (req, res) => {
     }
 });
 
-app.put('/users/:id', authenticateToken, async (req, res) => {
-  const { id } = req.params;
-  const { username, email, password, profile_picture_path } = req.body;
-
-  try {
-      const updatedUser = await updateUser(id, { username, email, password, profile_picture_path });
-      if (!updatedUser) {
-          return res.status(404).json({ error: 'User not found' });
-      }
-      res.status(200).json(updatedUser);
-  } catch (error) {
-      res.status(500).json({ error: 'Error updating user' });
-  }
+app.put('/users', authenticateToken, upload.single('profilePicture'), async (req, res) => {
+  updateUser(req, res);
 });
 
 app.delete('/users/:id', authenticateToken, async (req, res) => {

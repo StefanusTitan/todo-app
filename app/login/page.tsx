@@ -1,51 +1,53 @@
-// app/login/page.tsx
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter from next/navigation
+import { useAuth } from "../context/AuthContext";
+import React, { useState } from 'react';
+import { useRouter } from "next/navigation";
 require('dotenv').config();
 
 export default function LoginPage() {
+  const { login } = useAuth(); // Access the AuthContext's state updater
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
-  const router = useRouter(); // Initialize the router
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // Reset error message
-    setLoading(true); // Set loading to true
-
-    // Basic email validation
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-      setError("Please enter a valid email address.");
-      setLoading(false); // Reset loading state
-      return;
-    }
-
+    setError("");
+    setLoading(true);
+  
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, { // Change to your actual API endpoint
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         setError(errorData.error || "Login failed.");
-        setLoading(false); // Reset loading state
+        setLoading(false);
         return;
       }
-
+  
+      const userData = await response.json();
+  
+      // Use the login function from AuthContext
+      login(userData.profile_picture_path);
+  
       // Redirect or handle success
-      router.push("/"); // Use Next.js router for navigation
+      router.push("/");
     } catch (err) {
       setError("Something went wrong. Please try again.");
-      setLoading(false); // Reset loading state
+      setLoading(false);
     }
+  };
+
+  const handleRegisterRedirect = () => {
+    router.push("/register"); // Redirect to the register page
   };
 
   return (
@@ -81,6 +83,12 @@ export default function LoginPage() {
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
+      <button
+        onClick={handleRegisterRedirect}
+        style={{ ...styles.button, backgroundColor: "#ccc", marginTop: "1rem" }}
+      >
+        Register
+      </button>
     </div>
   );
 }
@@ -88,6 +96,7 @@ export default function LoginPage() {
 const styles = {
   inputGroup: {
     marginBottom: "1rem",
+    display: "grid",
   },
   button: {
     width: "100%",

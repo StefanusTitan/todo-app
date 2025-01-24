@@ -1,6 +1,7 @@
 const User = require('../models/Users.js');
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
+const upload = require("./multer.js"); // Import the multer middleware
 
 // Get all users
 async function getUsers() {
@@ -14,18 +15,38 @@ async function getUsers() {
 }
 
 // Update a user
-async function updateUser(id, updatedFields) {
+async function updateUser(req, res) {
+    console.log(req.user.id);
+    const { username, email, password } = req.body; // Other fields from the request body
+    const profilePicture = req.file; // Uploaded file
+    const updated_at = new Date().toISOString();
+
     try {
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(req.user.id);
         if (!user) {
-            console.log(`User with ID ${id} not found`);
-            return null;
+            return res.status(404).json({ error: `User with ID ${req.user.id} not found` });
         }
+
+        // Update fields
+        const updatedFields = { username, email };
+        if (password) {
+            updatedFields.password = password; // Hash the password if needed
+        }
+
+        // Handle uploaded profile picture
+        if (profilePicture) {
+            const profilePicturePath = `/images/${profilePicture.filename}`;
+            updatedFields.profile_picture_path = profilePicturePath;
+        }
+        updatedFields.updated_at = updated_at;
+
         await user.update(updatedFields);
-        console.log('User updated:', user.toJSON());
-        return user;
+
+        console.log("User updated:", user.toJSON());
+        res.status(200).json(user);
     } catch (error) {
-        console.error('Error updating user:', error);
+        console.error("Error updating user:", error);
+        res.status(500).json({ error: "Failed to update user" });
     }
 }
 

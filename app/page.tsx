@@ -143,7 +143,7 @@ export default function Home() {
       } else {
         todoToUpdate.completed_at = undefined;
       }
-      
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/todos/${id}`, {
         method: 'PUT',
         headers: {
@@ -339,14 +339,6 @@ export default function Home() {
       </div>
 
       <style jsx>{`
-        #container {
-          max-width: 800px;
-          margin: auto;
-          padding: 20px;
-          border: 1px solid #ccc;
-          border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
         form {
           margin-bottom: 20px;
         }
@@ -368,6 +360,8 @@ export default function Home() {
           color: white;
           border: none;
           padding: 5px 10px;
+          width: 100%;
+          margin-top: 10px;
           cursor: pointer;
         }
         button:hover {
@@ -377,6 +371,9 @@ export default function Home() {
           display: flex;
           flex-direction:column;
           gap: 5px;
+        }
+        #todo-list {
+          background-color: white;
         }
       `}</style>
     </div>
