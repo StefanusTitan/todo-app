@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 require("dotenv").config();
 
 export default function Profile() {
+    const { updateProfile } = useAuth();
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -101,6 +103,10 @@ export default function Profile() {
             }
 
             const updatedUser = await response.json();
+            // Update the profile picture path in the AuthContext
+            if (updatedUser.profile_picture_path) {
+                updateProfile(updatedUser.profile_picture_path); // Update profile in AuthContext
+            }
             console.log("Profile updated:", updatedUser);
 
             // Update the form data with the new profile picture path

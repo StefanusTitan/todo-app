@@ -57,6 +57,27 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Routes for User Model
+// Register route that accepts file uploads
+app.post("/register", upload.single("profile_picture"), async (req, res) => {
+  const { username, email, password } = req.body;
+  const profilePicturePath = req.file ? `/images/${req.file.filename}` : null;
+
+  try {
+    // Hash the password and create the user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await User.create({
+      username,
+      email,
+      password: hashedPassword,
+      profile_picture_path: profilePicturePath,
+    });
+
+    res.status(201).json({ message: "User registered successfully!" });
+  } catch (err) {
+    console.error("Error during registration:", err);
+    res.status(500).json({ error: "Failed to register user" });
+  }
+});
 // Login Route
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;

@@ -30,7 +30,9 @@ async function updateUser(req, res) {
         // Update fields
         const updatedFields = { username, email };
         if (password) {
-            updatedFields.password = password; // Hash the password if needed
+            // Hash the password and create the user
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updatedFields.password = hashedPassword; // Hash the password if needed
         }
 
         // Handle uploaded profile picture
@@ -79,8 +81,7 @@ async function resetPassword(email, newPassword) {
         }
 
         // Hash the new password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(newPassword, salt);
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
 
         // Update user's password
         await user.update({ password: hashedPassword });

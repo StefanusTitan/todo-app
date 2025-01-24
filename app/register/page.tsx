@@ -7,10 +7,18 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [profilePicturePath, setProfilePicturePath] = useState("");
+  const [profilePicture, setProfilePicture] = useState<File | null>(null); // Store the uploaded file
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Handle file input change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfilePicture(file);
+    }
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,15 +26,17 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("password", password);
+      if (profilePicture) {
+        formData.append("profile_picture", profilePicture); // Append the file
+      }
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/register`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username,
-          email,
-          password,
-          profile_picture_path: profilePicturePath,
-        }),
+        body: formData, // Send FormData object
       });
 
       if (!response.ok) {
@@ -82,12 +92,12 @@ export default function RegisterPage() {
         />
       </div>
       <div style={styles.inputGroup}>
-        <label htmlFor="profilePicturePath">Profile Picture Path</label>
+        <label htmlFor="profile_picture">Profile Picture</label>
         <input
-          type="text"
-          id="profilePicturePath"
-          value={profilePicturePath}
-          onChange={(e) => setProfilePicturePath(e.target.value)}
+          type="file"
+          id="profile_picture"
+          accept="image/*"
+          onChange={handleFileChange}
         />
       </div>
       <button type="submit" style={styles.button} disabled={loading}>

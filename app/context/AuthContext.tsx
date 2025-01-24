@@ -7,6 +7,7 @@ interface AuthContextType {
   profilePicturePath: string | null;
   login: (path: string) => void;
   logout: () => void;
+  updateProfile: (path: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,8 +26,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setProfilePicturePath(null);
   };
 
+  const updateProfile = (path: string) => {
+    setProfilePicturePath(path);
+  };
+
   return (
-    <AuthContext.Provider value={{ isLoggedIn, profilePicturePath, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, profilePicturePath, login, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
