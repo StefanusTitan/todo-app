@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import Alert from "../components/Alert";
 require("dotenv").config();
 
 export default function Profile() {
@@ -15,6 +16,7 @@ export default function Profile() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [profilePicture, setProfilePicture] = useState<File | null>(null); // Store the uploaded file
+    const [alert, setAlert] = useState({ message: "", type: "", show: false });
     const [error, setError] = useState<string | null>(null); // Store error messages
 
     // Fetch user data
@@ -108,7 +110,13 @@ export default function Profile() {
                 updateProfile(updatedUser.profile_picture_path); // Update profile in AuthContext
             }
             console.log("Profile updated:", updatedUser);
-
+            setTimeout(() => {
+                setAlert({
+                  message: "Profile updated successfully!",
+                  type: "success",
+                  show: true,
+                });
+              }, 500);
             // Update the form data with the new profile picture path
             setFormData((prev) => ({
                 ...prev,
@@ -179,6 +187,13 @@ export default function Profile() {
                     Save Changes
                 </button>
             </form>
+            {/* Alert Component */}
+            <Alert
+                message={alert.message}
+                type={alert.type}
+                show={alert.show}
+                onClose={() => setAlert({ ...alert, show: false })}
+            />
         </div>
     );
 }
