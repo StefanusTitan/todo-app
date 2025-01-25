@@ -170,9 +170,9 @@ app.put('/users', authenticateToken, upload.single('profilePicture'), async (req
   updateUser(req, res);
 });
 
-app.delete('/users/:id', authenticateToken, async (req, res) => {
+app.delete('/users', authenticateToken, async (req, res) => {
     try {
-        const deleted = await deleteUser(req.params.id);
+        const deleted = await deleteUser(req.user.id);
         if (!deleted) {
             return res.status(404).json({ error: 'User not found' });
         }

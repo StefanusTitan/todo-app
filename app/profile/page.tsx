@@ -6,7 +6,7 @@ import Alert from "../components/Alert";
 require("dotenv").config();
 
 export default function Profile() {
-    const { updateProfile } = useAuth();
+    const { updateProfile, logout } = useAuth();
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -73,16 +73,16 @@ export default function Profile() {
         try {
             // Create FormData object
             const formDataToSend = new FormData();
-            
+
             // Append text fields
             formDataToSend.append("username", formData.username);
             formDataToSend.append("email", formData.email);
-            
+
             // Conditionally append password
             if (formData.password) {
                 formDataToSend.append("password", formData.password);
             }
-            
+
             // Append profile picture if one is selected
             if (profilePicture) {
                 // Use 'profilePicture' to match the backend route's upload.single('profilePicture')
@@ -90,7 +90,7 @@ export default function Profile() {
             }
 
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, 
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
                 {
                     method: "PUT",
                     credentials: "include", // Add credentials to maintain session
@@ -127,6 +127,34 @@ export default function Profile() {
         } catch (error) {
             console.error("Error updating profile:", error);
             setError(error instanceof Error ? error.message : "Failed to update profile. Please try again later.");
+        }
+    };
+
+    // Handle user deletion
+    const handleDeleteAccount = async () => {
+        if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/users`,
+                {
+                    method: "DELETE",
+                    credentials: "include",
+                }
+            );
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Failed to delete account");
+            }
+
+            console.log("Account deleted successfully");
+            logout(); // Log out the user after account deletion
+        } catch (error) {
+            console.error("Error deleting account:", error);
+            setError(error instanceof Error ? error.message : "Failed to delete account. Please try again later.");
         }
     };
 
@@ -187,6 +215,13 @@ export default function Profile() {
                     Save Changes
                 </button>
             </form>
+            <button
+                type="button"
+                style={{ ...buttonStyle, backgroundColor: "#dc3545", marginTop: "1rem" }}
+                onClick={handleDeleteAccount}
+            >
+                Delete Account
+            </button>
             {/* Alert Component */}
             <Alert
                 message={alert.message}
