@@ -45,7 +45,8 @@ const TodoItem = sequelize.define('todo_items', {
     }
 }, {
     // Explicitly disable timestamps
-    timestamps: false
+    timestamps: true,   // enables createdAt and updatedAt
+    paranoid: true,     // enables deletedAt for soft deletes
 });
 
 module.exports = TodoItem;

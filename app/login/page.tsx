@@ -51,7 +51,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
+    <div style={styles.container}>
       <h1 style={{ textAlign: "center", marginBottom: "1rem" }}>Login</h1>
       {error && (
         <p style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>
@@ -67,6 +67,8 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            style={styles.input}
+            placeholder="Type your email here"
           />
         </div>
         <div style={styles.inputGroup}>
@@ -77,6 +79,8 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            style={styles.input}
+            placeholder="******"
           />
         </div>
         <button type="submit" style={styles.button} disabled={loading}>
@@ -85,7 +89,7 @@ export default function LoginPage() {
       </form>
       <button
         onClick={handleRegisterRedirect}
-        style={{ ...styles.button, backgroundColor: "#ccc", marginTop: "1rem" }}
+        style={{ ...styles.button, backgroundColor: "#ccc", color: "#222", marginTop: "1rem" }}
       >
         Register
       </button>
@@ -94,9 +98,27 @@ export default function LoginPage() {
 }
 
 const styles = {
+  container: {
+    maxWidth: "400px",
+    margin: "3rem auto",
+    padding: "2rem",
+    background: "#fff",
+    borderRadius: "8px",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+  },
   inputGroup: {
     marginBottom: "1rem",
     display: "grid",
+  },
+  input: {
+    padding: "0.5rem",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    background: "#f7f7f7",
+    fontSize: "1rem",
+    marginTop: "0.25rem",
+    marginBottom: "0.25rem",
+    color: "#222",
   },
   button: {
     width: "100%",
@@ -106,5 +128,7 @@ const styles = {
     border: "none",
     borderRadius: "4px",
     cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "1rem",
   },
 };
