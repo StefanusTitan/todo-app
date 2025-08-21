@@ -51,17 +51,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1 style={{ textAlign: "center", marginBottom: "1rem" }}>Login</h1>
-      {error && (
-        <p style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>
-          {error}
-        </p>
-      )}
-      <form onSubmit={handleLogin}>
-        <div style={styles.inputGroup}>
+    <div className="login-root">
+      <h1 className="login-title">Login</h1>
+      {error && <p className="login-error">{error}</p>}
+      <form onSubmit={handleLogin} className="login-form" noValidate>
+        <div className="input-group">
           <label htmlFor="email">Email</label>
           <input
+            className="text-input"
+            aria-label="Email"
             type="email"
             id="email"
             value={email}
@@ -69,9 +67,11 @@ export default function LoginPage() {
             required
           />
         </div>
-        <div style={styles.inputGroup}>
+        <div className="input-group">
           <label htmlFor="password">Password</label>
           <input
+            className="text-input"
+            aria-label="Password"
             type="password"
             id="password"
             value={password}
@@ -79,14 +79,11 @@ export default function LoginPage() {
             required
           />
         </div>
-        <button type="submit" style={styles.button} disabled={loading}>
+        <button type="submit" className="primary-button" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
-      <button
-        onClick={handleRegisterRedirect}
-        style={{ ...styles.button, backgroundColor: "#ccc", marginTop: "1rem" }}
-      >
+      <button onClick={handleRegisterRedirect} className="secondary-button">
         Register
       </button>
     </div>

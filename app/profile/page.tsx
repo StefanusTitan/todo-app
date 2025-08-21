@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import Alert from "../components/Alert";
+import Image from "next/image";
 require("dotenv").config();
 
 export default function Profile() {
@@ -158,10 +159,6 @@ export default function Profile() {
         }
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
     return (
         <div style={formStyle}>
             <h1 style={{ textAlign: "center", color: "#333", marginBottom: "1.5rem" }}>
@@ -202,11 +199,12 @@ export default function Profile() {
 
                 {/* Preview the uploaded profile picture */}
                 {formData.profile_picture_path && (
-                    <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-                        <img
+                    <div style={{position:"relative", textAlign: "center", marginBottom: "1rem", width: "auto", height: "320px"}}>
+                        <Image
                             src={formData.profile_picture_path}
                             alt="Profile Preview"
-                            style={{ maxWidth: "150px", borderRadius: "50%" }}
+                            fill
+                            style={{ objectFit: "contain" }}
                         />
                     </div>
                 )}

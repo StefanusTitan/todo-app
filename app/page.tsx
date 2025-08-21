@@ -171,7 +171,7 @@ export default function Home() {
   return (
     <div id="container">
       <h1>Create your To-Do list!</h1>
-      <form onSubmit={handleSubmit}>
+  <form onSubmit={handleSubmit} className="todo-form">
         <div>
           <label htmlFor="title">Title:</label>
           <input
@@ -338,39 +338,57 @@ export default function Home() {
         </table>
       </div>
 
-      <style jsx>{`
-        form {
+        <style jsx>{`
+        .todo-form {
           margin-bottom: 20px;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        @media (min-width: 768px) {
+          .todo-form {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            align-items: start;
+          }
+          /* make the Add button span both columns on larger screens */
+          .todo-form button[type="submit"] {
+            grid-column: 1 / -1;
+          }
         }
         table {
           width: 100%;
           border-collapse: collapse;
+          margin: 0 auto; /* center table in container */
         }
         th, td {
           border: 1px solid #ccc;
-          padding: 8px;
-          text-align: left;
+          padding: 10px 12px;
+          text-align: center; /* center contents */
+          vertical-align: middle;
         }
         th {
           background-color: #f4f4f4;
-          text-align: center;
         }
-        button {
+        /* Action buttons inside the table (scoped) */
+        .buttons button {
           background-color: #ff4d4d;
           color: white;
           border: none;
-          padding: 5px 10px;
+          padding: 6px 10px;
           width: 100%;
-          margin-top: 10px;
+          margin-top: 8px;
           cursor: pointer;
+          border-radius: 10px; /* rounded corners */
         }
-        button:hover {
+        .buttons button:hover {
           background-color: #ff1a1a;
         }
         .buttons {
           display: flex;
-          flex-direction:column;
-          gap: 5px;
+          flex-direction: column;
+          gap: 8px;
+          align-items: center; /* center action buttons horizontally */
         }
         #todo-list {
           background-color: white;

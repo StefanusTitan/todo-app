@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
-import Profile from "./profile";
+import Profile from "./components/ProfileLink";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,8 +31,10 @@ export default function RootLayout({
           <header>
             <nav>
               <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/about">About</a></li>
+                <div className="flex gap-4">
+                  <li><a href="/">Home</a></li>
+                  <li><a href="/about">About</a></li>
+                </div>
                 <li className="profile-item">
                   <Profile />
                 </li>
