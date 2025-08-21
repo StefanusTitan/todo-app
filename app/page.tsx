@@ -171,7 +171,7 @@ export default function Home() {
   return (
     <div id="container">
       <h1>Create your To-Do list!</h1>
-  <form onSubmit={handleSubmit} className="todo-form">
+      <form onSubmit={handleSubmit} className="todo-form">
         <div>
           <label htmlFor="title">Title:</label>
           <input

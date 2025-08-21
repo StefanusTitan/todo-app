@@ -51,14 +51,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-root">
-      <h1 className="login-title">Login</h1>
-      {error && <p className="login-error">{error}</p>}
-      <form onSubmit={handleLogin} className="login-form" noValidate>
-        <div className="input-group">
-          <label htmlFor="email">Email</label>
+    <div>
+      <h1 className="text-2xl font-semibold text-center text-slate-900 mb-3">Login</h1>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      <form onSubmit={handleLogin} className="grid gap-4" noValidate>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="email" className="font-medium text-slate-700">Email</label>
           <input
-            className="text-input"
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-200"
             aria-label="Email"
             type="email"
             id="email"
@@ -67,10 +67,10 @@ export default function LoginPage() {
             required
           />
         </div>
-        <div className="input-group">
-          <label htmlFor="password">Password</label>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="password" className="font-medium text-slate-700">Password</label>
           <input
-            className="text-input"
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-200"
             aria-label="Password"
             type="password"
             id="password"
@@ -79,29 +79,20 @@ export default function LoginPage() {
             required
           />
         </div>
-        <button type="submit" className="primary-button" disabled={loading}>
+        <button
+          type="submit"
+          className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold disabled:opacity-60"
+          disabled={loading}
+        >
           {loading ? "Logging in..." : "Login"}
         </button>
       </form>
-      <button onClick={handleRegisterRedirect} className="secondary-button">
+      <button
+        onClick={handleRegisterRedirect}
+        className="w-full mt-3 py-3 rounded-lg border border-slate-300"
+      >
         Register
       </button>
     </div>
   );
 }
-
-const styles = {
-  inputGroup: {
-    marginBottom: "1rem",
-    display: "grid",
-  },
-  button: {
-    width: "100%",
-    padding: "0.75rem",
-    backgroundColor: "#0070f3",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-};

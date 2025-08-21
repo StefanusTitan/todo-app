@@ -19,8 +19,10 @@ export default function LoginLayout({
   }, []);
 
   return (
-    <div className="login-page-outer">
-      <div className="login-form-container">{children}</div>
+    <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-slate-50 to-sky-50">
+      <div className="w-full max-w-lg bg-white rounded-2xl p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
+        {children}
+      </div>
     </div>
   );
 }

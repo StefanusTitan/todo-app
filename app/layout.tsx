@@ -30,11 +30,11 @@ export default function RootLayout({
         <AuthProvider>
           <header>
             <nav>
-              <ul>
-                <div className="flex gap-4">
-                  <li><a href="/">Home</a></li>
-                  <li><a href="/about">About</a></li>
-                </div>
+              <ul className="flex items-center justify-between">
+                <li className="flex gap-4">
+                  <a href="/">Home</a>
+                  <a href="/about">About</a>
+                </li>
                 <li className="profile-item">
                   <Profile />
                 </li>

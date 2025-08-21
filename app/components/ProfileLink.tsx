@@ -9,6 +9,8 @@ const Profile = () => {
   const { isLoggedIn, profilePicturePath, login, logout } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  // Track whether we're performing the initial auth check to avoid flash of "Login"
+  const [loading, setLoading] = useState<boolean>(!isLoggedIn);
   const ref = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -24,6 +26,9 @@ const Profile = () => {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        // Initial check complete regardless of outcome
+        setLoading(false);
       }
     };
 
@@ -78,7 +83,9 @@ const Profile = () => {
 
   return (
     <div className="relative inline-block" ref={ref}>
-      {!isLoggedIn ? (
+      {loading ? (
+        <div className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
+      ) : !isLoggedIn ? (
         <a href="/login" className="text-sm font-medium text-blue-600 hover:underline">
           Login
         </a>

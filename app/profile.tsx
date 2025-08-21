@@ -48,16 +48,16 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-container">
+    <div className="flex items-center gap-3">
       <a href={isLoggedIn ? "/profile" : "/login"}>
         {isLoggedIn ? (
-          <div className="circular-image">
+          <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-200">
             <Image
               src={profilePicturePath || "/images/default-profile.jpg"}
               alt="Profile Picture"
               width={64}
               height={64}
-              className="profile-pic"
+              className="object-cover w-full h-full"
             />
           </div>
         ) : (
@@ -65,7 +65,10 @@ const Profile = () => {
         )}
       </a>
       {isLoggedIn && (
-        <button onClick={handleLogout} className="logout-button">
+        <button
+          onClick={handleLogout}
+          className="ml-3 bg-red-500 hover:bg-red-600 text-white rounded-md px-3 py-1"
+        >
           Logout
         </button>
       )}
