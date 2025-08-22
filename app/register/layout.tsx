@@ -1,25 +1,27 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
-export default function RegisterLayout({ children }: { children: React.ReactNode }) {
+export default function RegisterLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  useEffect(() => {
+    // hide the global header while on register page (match login behavior)
+    const header = document.querySelector("header") as HTMLElement | null;
+    const prevDisplay = header?.style.display ?? "";
+    if (header) header.style.display = "none";
+    return () => {
+      if (header) header.style.display = prevDisplay;
+    };
+  }, []);
+
   return (
-    <div style={styles.container}>
-      <main style={styles.main}>{children}</main>
+    <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-b from-slate-50 to-sky-50">
+      <div className="w-full max-w-lg bg-white rounded-2xl p-8 shadow-[0_12px_40px_rgba(15,23,42,0.06)]">
+        {children}
+      </div>
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "2rem",
-  },
-  main: {
-    backgroundColor: "#f9f9f9",
-    padding: "2rem",
-    borderRadius: "8px",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-  },
-};

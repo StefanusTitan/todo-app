@@ -55,70 +55,64 @@ export default function RegisterPage() {
   };
 
   return (
-    <form onSubmit={handleRegister}>
-      {error && (
-        <p style={{ color: "red", textAlign: "center", marginBottom: "1rem" }}>
-          {error}
-        </p>
-      )}
-      <div style={styles.inputGroup}>
-        <label htmlFor="username">Username</label>
-        <input
-          type="text"
-          id="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-      </div>
-      <div style={styles.inputGroup}>
-        <label htmlFor="email">Email</label>
-        <input
-          type="email"
-          id="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div style={styles.inputGroup}>
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-      <div style={styles.inputGroup}>
-        <label htmlFor="profile_picture">Profile Picture</label>
-        <input
-          type="file"
-          id="profile_picture"
-          accept="image/*"
-          onChange={handleFileChange}
-        />
-      </div>
-      <button type="submit" style={styles.button} disabled={loading}>
-        {loading ? "Registering..." : "Register"}
-      </button>
-    </form>
+    <div>
+      <h1 className="text-2xl font-semibold text-center text-slate-900 mb-3">Register</h1>
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      <form onSubmit={handleRegister} className="grid gap-4" noValidate>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="username" className="font-medium text-slate-700">Username</label>
+          <input
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-200"
+            aria-label="Username"
+            type="text"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="email" className="font-medium text-slate-700">Email</label>
+          <input
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-200"
+            aria-label="Email"
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="password" className="font-medium text-slate-700">Password</label>
+          <input
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-4 focus:ring-blue-200"
+            aria-label="Password"
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="profile_picture" className="font-medium text-slate-700">Profile Picture</label>
+          <input
+            className="px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900"
+            type="file"
+            id="profile_picture"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold disabled:opacity-60"
+          disabled={loading}
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+      </form>
+    </div>
   );
 }
-
-const styles = {
-  inputGroup: {
-    marginBottom: "1rem",
-    display: "grid",
-  },
-  button: {
-    width: "100%",
-    padding: "0.75rem",
-    backgroundColor: "#0070f3",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
-};
