@@ -4,15 +4,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from "next/navigation";
 require('dotenv').config();
 
-interface Todo {
-  item_id: number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-  due_date: string;
-  completed_at?: string;
-}
+import { Todo, formatDate, getRowClass, formatStatus, formatPriority } from './utils/todoHelpers';
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]); // State to hold the list of to-dos
@@ -124,6 +116,36 @@ export default function Home() {
     }
   };
 
+  const handleComplete = async (id: number) => {
+    try {
+      const todoToUpdate = todos.find((todo) => todo.item_id === id);
+      if (!todoToUpdate) return;
+
+      // If already completed, do nothing
+      if (todoToUpdate.status === 'completed') return;
+
+      const updated = { ...todoToUpdate, status: 'completed', completed_at: new Date().toISOString() };
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/todos/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(updated),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to mark to-do completed');
+      }
+
+      // Update local state
+      setTodos((prevTodos) => prevTodos.map((t) => (t.item_id === id ? updated : t)));
+    } catch (error) {
+      console.error('Error completing to-do:', error);
+    }
+  };
+
   const handleEdit = (id: number) => {
     if (editingTodoId === id) {
       setEditingTodoId(null); // Close the editing mode if clicking the same to-do again
@@ -167,6 +189,8 @@ export default function Home() {
       console.error('Error saving to-do:', error);
     }
   };
+
+  // helpers are imported from ./utils/todoHelpers
 
   return (
     <div id="container">
@@ -255,7 +279,7 @@ export default function Home() {
           </thead>
           <tbody>
             {todos.map((todo) => (
-              <tr key={`${todo.item_id}-${todo.title}`}>
+              <tr key={`${todo.item_id}-${todo.title}`} className={getRowClass(todo)}>
                 <td>
                   {editingTodoId === todo.item_id ? (
                     <input
@@ -291,7 +315,7 @@ export default function Home() {
                       <option value="completed">Completed</option>
                     </select>
                   ) : (
-                    todo.status
+                    formatStatus(todo.status)
                   )}
                 </td>
                 <td>
@@ -306,7 +330,7 @@ export default function Home() {
                       <option value="high">High</option>
                     </select>
                   ) : (
-                    todo.priority
+                    formatPriority(todo.priority)
                   )}
                 </td>
                 <td>
@@ -318,19 +342,30 @@ export default function Home() {
                       onChange={(e) => handleChange(e, todo.item_id)}
                     />
                   ) : (
-                    todo.due_date
+                    formatDate(todo.due_date)
                   )}
                 </td>
                 <td>
-                  {todo.completed_at}
+                  {formatDate(todo.completed_at)}
                 </td>
                 <td className='buttons'>
-                  {editingTodoId === todo.item_id ? (
-                    <button onClick={() => handleSave(todo.item_id)}>Save</button>
+                  {todo.status === 'completed' ? (
+                    // For completed todos only allow deletion
+                    <>
+                      <button className="delete" onClick={() => handleDelete(todo.item_id)}>Delete</button>
+                    </>
                   ) : (
-                    <button onClick={() => handleEdit(todo.item_id)}>Edit</button>
+                    // For non-completed todos show edit/save and complete + delete
+                    <>
+                      {editingTodoId === todo.item_id ? (
+                        <button className="save" onClick={() => handleSave(todo.item_id)}>Save</button>
+                      ) : (
+                        <button className="edit" onClick={() => handleEdit(todo.item_id)}>Edit</button>
+                      )}
+                      <button className="complete" onClick={() => handleComplete(todo.item_id)}>Complete</button>
+                      <button className="delete" onClick={() => handleDelete(todo.item_id)}>Delete</button>
+                    </>
                   )}
-                  <button onClick={() => handleDelete(todo.item_id)}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -372,17 +407,44 @@ export default function Home() {
         }
         /* Action buttons inside the table (scoped) */
         .buttons button {
-          background-color: #ff4d4d;
           color: white;
           border: none;
           padding: 6px 10px;
           width: 100%;
           margin-top: 8px;
           cursor: pointer;
-          border-radius: 10px; /* rounded corners */
+          border-radius: 8px; /* rounded corners */
         }
-        .buttons button:hover {
-          background-color: #ff1a1a;
+        .buttons .edit { background-color: #1e90ff; }
+        .buttons .edit:hover { background-color: #1a75d1; }
+        .buttons .save { background-color: #4caf50; }
+        .buttons .save:hover { background-color: #3e8e41; }
+        .buttons .complete { background-color: #6a994e; }
+        .buttons .complete:hover { background-color: #56823f; }
+        .buttons .delete { background-color: #ff4d4d; }
+        .buttons .delete:hover { background-color: #ff1a1a; }
+
+        /* Dim completed rows for visual feedback (exclude action buttons cell) */
+        tr.completed td:not(.buttons) {
+          opacity: 0.7;
+          text-decoration: line-through;
+        }
+
+        /* Keep action buttons readable in completed rows */
+        tr.completed td.buttons,
+        tr.completed td.buttons * {
+          text-decoration: none !important; /* remove inherited line-through */
+          opacity: 1 !important; /* keep buttons fully opaque for usability */
+        }
+
+        /* Overdue (past due) rows */
+        tr.overdue td {
+          background-color: #ffe6e6; /* light red */
+        }
+
+        /* Due within 24 hours */
+        tr.due-soon td {
+          background-color: #fff6e6; /* light yellow */
         }
         .buttons {
           display: flex;
